@@ -5,9 +5,9 @@ set(BUILD_SHARED_LIBS ON)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O2 -fsanitize=address")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
-set(LINK_FLAGS "${LINK_FLAGS} -fsanitize=address")
+# set(LINK_FLAGS "${LINK_FLAGS} -fsanitize=address")
 find_package(PkgConfig)
 
 option(ALL "Build all types of database" ON)

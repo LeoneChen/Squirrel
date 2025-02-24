@@ -1,0 +1,84 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/AFLplusplus/afl-fuzz",
+            "args": [
+                "-i",
+                "/home/leone/Squirrel/data/fuzz_root/mysql_input/",
+                "-o",
+                "/tmp/fuzz",
+                "-M",
+                "aec3badf-3",
+                "-t",
+                "60000",
+                "--",
+                "/home/leone/Squirrel/build/db_driver"
+            ],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/scripts/utils",
+            "environment": [
+                {
+                    "name": "AFL_CUSTOM_MUTATOR_ONLY",
+                    "value": "1"
+                },
+                {
+                    "name": "AFL_DISABLE_TRIM",
+                    "value": "1"
+                },
+                {
+                    "name": "AFL_FAST_CAL",
+                    "value": "1"
+                },
+                {
+                    "name": "AFL_CUSTOM_MUTATOR_LIBRARY",
+                    "value": "/home/leone/Squirrel/build/libmysql_mutator.so"
+                },
+                {
+                    "name": "SQUIRREL_CONFIG",
+                    "value": "/home/leone/Squirrel/data/config_mariadb.yml"
+                },
+                {
+                    "name": "AFL_MAP_SIZE",
+                    "value": "351328"
+                },
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/utils/run.py",
+            "console": "integratedTerminal",
+            "args": [
+                "mariadb",
+                "../../data/fuzz_root/mysql_input/"
+            ],
+            "cwd": "${workspaceFolder}/scripts/utils",
+            "env": {
+                "AFL_MAP_SIZE": "351328"
+            },
+            "stopOnEntry": true
+        }
+    ]
+}
