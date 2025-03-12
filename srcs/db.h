@@ -15,7 +15,8 @@ class DataBase {
   virtual bool save_interesting_query(const std::string &) = 0;
   // Clean up the enviroment, e.g., drop all the databases.
   virtual bool clean_up() { return true; }
-  virtual ~DataBase(){};
+  virtual ~DataBase() {};
+  virtual std::string random_choice_mutated_query() = 0;
 };
 
 DataBase *create_database(YAML::Node config);

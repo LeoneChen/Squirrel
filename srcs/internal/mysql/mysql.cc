@@ -1,6 +1,7 @@
 #include "mysql.h"
 
 #include <cassert>
+#include <ctime>
 #include <string>
 #include <vector>
 
@@ -98,4 +99,15 @@ std::string MySQLDB::get_next_mutated_query() {
   auto result = validated_test_cases_.top();
   validated_test_cases_.pop();
   return result;
+}
+
+std::string MySQLDB::random_choice_mutated_query() {
+  std::vector<std::string> testcase_vec;
+  while (!validated_test_cases_.empty()) {
+    testcase_vec.push_back(validated_test_cases_.top());
+    validated_test_cases_.pop();
+  }
+  std::srand(std::time(nullptr));
+  int randomIndex = std::rand() % testcase_vec.size();
+  return testcase_vec[randomIndex];
 }

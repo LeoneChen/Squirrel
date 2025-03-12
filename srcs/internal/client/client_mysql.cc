@@ -10,8 +10,10 @@
 #include <string_view>
 
 #include "mysql.h"
+#include "mysql/errmsg.h"
 #include "mysqld_error.h"
 
+#define DEBUG_SQL_RESPONSE 1
 using namespace std;
 namespace {
 bool is_crash_response(int response) {
@@ -71,10 +73,25 @@ void MySQLClient::clean_up_env() {
   mysql_close(&(*connection));
 }
 
+ExecutionStatus MySQLClient::shutdown() {
+  std::optional<MYSQL> connection = create_connection("");
+  if (!connection.has_value()) {
+    return kServerCrash;
+  }
+  string shutdown_query = "SHUTDOWN;";
+  mysql_real_query(&connection.value(), shutdown_query.c_str(),
+                   shutdown_query.size());
+  ExecutionStatus server_status = clean_up_connection(connection.value());
+  mysql_close(&connection.value());
+  return server_status;
+}
+
 std::optional<MYSQL> MySQLClient::create_connection(std::string_view db_name) {
   MYSQL result;
   if (mysql_init(&result) == NULL) return std::nullopt;
 
+  unsigned int connect_timeout = 5;
+  mysql_options(&result, MYSQL_OPT_CONNECT_TIMEOUT, &connect_timeout);
   if (mysql_real_connect(&result, host_.c_str(), user_name_.c_str(),
                          passwd_.c_str(), db_name.data(), 0, sock_path_.c_str(),
                          CLIENT_MULTI_STATEMENTS) == NULL) {
@@ -126,7 +143,25 @@ ExecutionStatus MySQLClient::clean_up_connection(MYSQL &mm) {
   int res = -1;
   do {
     auto q_result = mysql_store_result(&mm);
-    if (q_result) mysql_free_result(q_result);
+    if (q_result) {
+#if DEBUG_SQL_RESPONSE
+      int num_fields = mysql_num_fields(q_result);
+
+      MYSQL_FIELD *fields = mysql_fetch_fields(q_result);
+      for (int i = 0; i < num_fields; i++) {
+        fprintf(stderr, "%s\t", fields[i].name);
+      }
+      fprintf(stderr, "\n");
+
+      while (auto row = mysql_fetch_row(q_result)) {
+        for (int i = 0; i < num_fields; i++) {
+          fprintf(stderr, "%s\t", row[i] ? row[i] : "NULL");
+        }
+        fprintf(stderr, "\n");
+      }
+#endif
+      mysql_free_result(q_result);
+    }
   } while ((res = mysql_next_result(&mm)) == 0);
 
   if (res != -1) {

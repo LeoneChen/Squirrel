@@ -20,6 +20,7 @@ class SQLiteDB : public DataBase {
   virtual bool has_mutated_test_cases();
   // Clean up the enviroment, e.g., drop all the databases.
   virtual bool clean_up() { return true; }
+  virtual std::string random_choice_mutated_query();
 
  private:
   size_t validate_all(const std::vector<IR *> &ir_set);

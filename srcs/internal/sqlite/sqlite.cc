@@ -1,5 +1,6 @@
 #include "sqlite.h"
 
+#include <ctime>
 #include <string>
 #include <vector>
 
@@ -17,7 +18,7 @@ bool SQLiteDB::initialize(YAML::Node config) {
   const std::string pragma_path = config["pragma"].as<std::string>();
   std::cerr << "pragma path" << pragma_path << std::endl;
   std::vector<std::string> file_list =
-      get_all_files_in_dir(init_lib_path.c_str());
+      get_all_files_in_dir(init_lib_path.c_str(), true);
   for (auto &f : file_list) {
     std::cerr << "init lib: " << f << ", status ";
     mutator_->init(f, "", pragma_path);
@@ -96,4 +97,15 @@ std::string SQLiteDB::get_next_mutated_query() {
   auto result = validated_test_cases_.top();
   validated_test_cases_.pop();
   return result;
+}
+
+std::string SQLiteDB::random_choice_mutated_query() {
+  std::vector<std::string> testcase_vec;
+  while (!validated_test_cases_.empty()) {
+    testcase_vec.push_back(validated_test_cases_.top());
+    validated_test_cases_.pop();
+  }
+  std::srand(std::time(nullptr));
+  int randomIndex = std::rand() % testcase_vec.size();
+  return testcase_vec[randomIndex];
 }

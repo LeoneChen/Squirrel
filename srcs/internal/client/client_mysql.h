@@ -19,6 +19,7 @@ class MySQLClient : public DBClient {
   virtual ExecutionStatus execute(const char *query, size_t size);
   virtual void clean_up_env();
   virtual bool check_alive();
+  ExecutionStatus shutdown();
 
  private:
   ExecutionStatus clean_up_connection(MYSQL &);
